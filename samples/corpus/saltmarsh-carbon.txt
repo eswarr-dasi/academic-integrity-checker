@@ -1,0 +1,33 @@
+Burial, Not Growth: Why Saltmarsh Sediment Stores Carbon
+
+Coastal saltmarsh sediment stores carbon at rates an order of magnitude above
+those of temperate forest, and the mechanism is burial rather than growth.
+Vertical accretion keeps pace with sea level rise wherever the suspended
+sediment supply is adequate, which means the marsh surface climbs and the
+older organic layers pass below the oxygenated zone where decomposition slows
+almost to a halt. Above-ground biomass turns over every year and contributes
+almost nothing to the long-term stock; the stock lives in the mud.
+
+The practical consequence is that a marsh allowed to migrate landward retains
+its carbon function, while one pinned against a seawall drowns and releases
+it. Coastal squeeze is therefore a carbon problem as well as a habitat one,
+and the timescale is short. Once the marsh platform falls below the level at
+which vegetation can hold sediment, the accumulated organic layers are
+reworked by tidal currents and re-exposed to oxygen.
+
+Managed realignment buys two benefits at once, flood attenuation and a
+persistent sink, and the second is rarely counted in the business case. The
+omission is partly a measurement problem. Accretion rates vary by an order of
+magnitude within a single estuary depending on distance from the sediment
+source, elevation in the tidal frame, and the density of the vegetation
+canopy, so a single site measurement extrapolated across a scheme is close to
+worthless.
+
+What the evidence does support is a ranking. Sites with an adequate sediment
+supply and room to migrate are worth restoring first. Sites with neither
+should be valued for flood attenuation alone, and any carbon claim attached
+to them should be treated as speculative until several years of accretion
+measurements exist.
+
+This file exists so that the sample index has something in it. It was written
+for this repository and carries no third-party rights.
