@@ -27,8 +27,9 @@ eight word phrase and should never be presented as if it were the same thing.
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
-from typing import Iterable, Mapping, Protocol, Sequence
+from typing import Protocol
 
 from .fingerprint import DocumentFingerprint
 from .index import Candidate, CorpusIndex
@@ -301,7 +302,7 @@ def hash_word(word: str) -> int:
 
 
 def cosine(a: Sequence[float], b: Sequence[float]) -> float:
-    return sum(x * y for x, y in zip(a, b))
+    return sum(x * y for x, y in zip(a, b, strict=True))
 
 
 # --------------------------------------------------------------------------
