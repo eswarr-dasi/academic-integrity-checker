@@ -1,0 +1,90 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "academic-integrity-checker"
+version = "0.1.0"
+description = "Plagiarism and AI-writing detection with auditable originality reports"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Eswarr Dasi" }]
+keywords = ["plagiarism", "ai-detection", "minhash", "winnowing", "academic-integrity"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Education",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Text Processing :: Linguistic",
+]
+
+# The base engine has no runtime dependencies on purpose. Fingerprinting,
+# alignment, scoring, stylometry and report rendering are standard library
+# only, which is what keeps the unit tests offline and the container small.
+# Everything heavier is opt in.
+dependencies = []
+
+[project.optional-dependencies]
+ingest = ["pypdf>=4", "python-docx>=1.1", "striprtf>=0.0.26", "beautifulsoup4>=4.12"]
+semantic = ["sentence-transformers>=3", "torch>=2.2", "scikit-learn>=1.4"]
+detect = ["transformers>=4.40", "torch>=2.2"]
+api = ["fastapi>=0.110", "uvicorn[standard]>=0.29", "python-multipart>=0.0.9"]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.5", "mypy>=1.10"]
+all = [
+  "academic-integrity-checker[ingest,semantic,detect,api,dev]",
+]
+
+[project.scripts]
+aic = "aic.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/eswarr-dasi/academic-integrity-checker"
+Issues = "https://github.com/eswarr-dasi/academic-integrity-checker/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+addopts = "-q --strict-markers"
+
+[tool.coverage.run]
+source = ["src/aic"]
+branch = true
+
+[tool.coverage.report]
+# The engine modules are the ones a disputed report depends on, so they are
+# held to a higher bar than the glue.
+fail_under = 70
+show_missing = true
+
+[tool.ruff]
+line-length = 90
+target-version = "py310"
+src = ["src", "tests", "api"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C4"]
+ignore = [
+  "E501",    # long lines are allowed inside the explanatory docstrings
+  "B008",    # FastAPI dependency defaults are the documented idiom
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402"]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["src/aic"]
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_untyped_defs = false
