@@ -1,0 +1,40 @@
+Coastal Management and the Carbon Ledger
+
+Flood defence schemes are still appraised almost entirely on avoided damage,
+and the habitat consequences arrive late in the process as a constraint rather
+than as a benefit. That framing made sense when the only quantifiable output
+was property protection. It makes less sense now that sediment carbon can be
+measured, because one of the options on the table produces both outcomes at
+once and the appraisal cannot see the second one.
+
+The mechanism is worth stating precisely. Vertical accretion keeps pace with
+sea level rise wherever the suspended sediment supply is adequate, which means
+the marsh surface climbs and the older organic layers pass below the
+oxygenated zone where decomposition slows almost to a halt. So the store is a
+function of geometry and sediment supply, not of how much vegetation is
+visible at the surface in any given summer.
+
+One review puts the consequence bluntly: "a marsh allowed to migrate landward
+retains its carbon function, while one pinned against a seawall drowns and
+releases it." The quoted framing is useful because it makes the decision a
+choice between two engineering options rather than a trade-off between
+engineering and nature.
+
+Where I part company with the literature is on the appraisal timescale.
+Accretion is slow and the discount rates used in flood appraisal are not, so a
+sink that accumulates over eighty years contributes almost nothing to a
+present value computed at three and a half percent. Arguing for realignment on
+carbon grounds inside the existing appraisal framework is therefore close to
+hopeless. The argument has to be made against the framework instead, which is
+a harder but more honest position.
+
+A second problem is measurement cost. Establishing an accretion rate at a
+single site takes several years of marker horizon surveys, and schemes are
+appraised in months. Any carbon benefit claimed at the appraisal stage is
+therefore a modelled number, and modelled numbers in a business case tend to
+harden into commitments.
+
+References
+
+Somebody, A. Burial, not growth: why saltmarsh sediment stores carbon.
+A Journal of Coastal Science, 2019.
