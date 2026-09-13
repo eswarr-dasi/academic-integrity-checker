@@ -268,3 +268,25 @@ def test_report_dict_never_contains_a_verdict_field():
     assert "cheated" not in payload
     assert payload["band"] in ("human", "unclear", "likely-ai", "very-likely-ai")
     assert payload["caveats"]
+
+
+def test_document_index_stays_inside_the_range_of_its_segments():
+    """Length must never become evidence on its own.
+
+    Type token and hapax ratios fall as a text grows, so scoring a whole
+    document with a single feature vector used to drag long submissions
+    toward likely-ai even when every window inside them scored human.
+    """
+    analysis = AIDetector().analyze(normalize(" ".join(SENTENCES * 12)))
+    assert len(analysis.segments) >= 3
+    scores = [s.score for s in analysis.segments]
+    assert min(scores) - 1e-9 <= analysis.index <= max(scores) + 1e-9
+    if all(s.band == "human" for s in analysis.segments):
+        assert analysis.band == "human"
+
+
+def test_a_longer_document_is_not_scored_higher_for_being_longer():
+    detector = AIDetector()
+    short = detector.analyze(normalize(" ".join(SENTENCES)))
+    long_form = detector.analyze(normalize(" ".join(SENTENCES * 12)))
+    assert abs(long_form.index - short.index) < 0.15
