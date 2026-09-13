@@ -48,7 +48,7 @@ class TokenStore:
         Path(path).write_text(json.dumps(self.data))
 
     @classmethod
-    def load(cls, path: str | Path) -> "TokenStore":
+    def load(cls, path: str | Path) -> TokenStore:
         p = Path(path)
         if not p.exists():
             return cls()
@@ -153,7 +153,7 @@ class Engine:
         root: str | Path,
         lm: LanguageModel | None = None,
         settings: ScoringSettings | None = None,
-    ) -> "Engine":
+    ) -> Engine:
         root = Path(root)
         return cls(
             index=CorpusIndex.load(root),
@@ -168,7 +168,7 @@ class Engine:
         k: int = DEFAULT_K,
         w: int = DEFAULT_W,
         lm: LanguageModel | None = None,
-    ) -> "Engine":
+    ) -> Engine:
         return cls(index=CorpusIndex(k=k, w=w), detector=AIDetector(lm=lm))
 
 
