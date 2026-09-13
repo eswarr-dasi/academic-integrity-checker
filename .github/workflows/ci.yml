@@ -1,0 +1,112 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      # The core engine is standard library only, so the test job installs
+      # nothing but pytest. If this job ever needs torch, a dependency has
+      # leaked out of an optional extra and into the engine.
+      - name: Install test tooling only
+        run: python -m pip install --upgrade pip pytest pytest-cov
+
+      - name: Run tests
+        run: pytest --cov --cov-report=term-missing
+
+  lint:
+    name: lint and types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip ruff mypy
+      - name: Ruff
+        run: ruff check .
+      - name: Mypy
+        run: mypy || true   # advisory until the annotations are complete
+
+  smoke:
+    name: end-to-end smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+
+      - name: Build the sample index
+        run: |
+          PYTHONPATH=src python -m aic.cli index build \
+            --corpus samples/corpus --out .aic/index
+
+      - name: Check the sample submission
+        run: |
+          PYTHONPATH=src python -m aic.cli check samples/submissions/essay.txt \
+            --index .aic/index --json report.json --html report.html
+
+      # The sample submission contains one unattributed reuse and one properly
+      # quoted reuse of the sample corpus document. If the engine stops
+      # finding the first, or starts counting the second, this fails.
+      - name: Assert the report is sane
+        run: |
+          python - <<'PY'
+          import json
+          r = json.load(open("report.json"))
+          sim = r["similarity"]
+          assert r["report_version"] == "1.0", r["report_version"]
+          assert 0.0 <= sim["index"] <= 1.0, sim["index"]
+          assert sim["index"] > 0.0, "the unattributed reuse was not detected"
+          assert sim["matched_words"] <= sim["scorable_words"]
+          assert sim["sources"], "a match with no attributable source"
+          assert any(m["excluded"] for m in sim["matches"]), \
+              "the quoted reuse should be reported as excluded, not dropped"
+          assert r["ai_writing"]["band"] in (
+              "human", "unclear", "likely-ai", "very-likely-ai")
+          assert r["ai_writing"]["calibrated"] is False, \
+              "shipping placeholder weights as calibrated would be dishonest"
+          assert r["caveats"], "a report without caveats overclaims"
+          print("similarity %.1f%%  ai %.1f%% (%s)  priority=%s" % (
+              100 * sim["index"],
+              100 * r["ai_writing"]["index"],
+              r["ai_writing"]["band"],
+              r["review_priority"],
+          ))
+          PY
+
+      - name: Upload the rendered report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-originality-report
+          path: |
+            report.json
+            report.html
