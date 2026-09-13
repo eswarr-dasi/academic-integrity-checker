@@ -76,6 +76,8 @@ select = ["E", "F", "I", "UP", "B", "SIM", "C4"]
 ignore = [
   "E501",    # long lines are allowed inside the explanatory docstrings
   "B008",    # FastAPI dependency defaults are the documented idiom
+  "UP031",   # printf style formatting is deliberate in user facing messages
+  "SIM905",  # word lists stay readable as prose strings split once at import
 ]
 
 [tool.ruff.lint.per-file-ignores]
