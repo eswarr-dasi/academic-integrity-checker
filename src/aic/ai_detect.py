@@ -43,8 +43,9 @@ decision with a cost, not as a property of the text.
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Protocol, Sequence
+from typing import Protocol
 
 from .normalize import NormalizedDoc, Span, normalize
 
@@ -304,14 +305,14 @@ class IsotonicCalibrator:
     def __call__(self, raw: float) -> float:
         if not self.fitted:
             return raw
-        for bp, val in zip(self.breakpoints, self.values):
+        for bp, val in zip(self.breakpoints, self.values, strict=True):
             if raw <= bp:
                 return val
         return self.values[-1]
 
     @classmethod
-    def fit(cls, scores: Sequence[float], labels: Sequence[int]) -> "IsotonicCalibrator":
-        pairs = sorted(zip(scores, labels))
+    def fit(cls, scores: Sequence[float], labels: Sequence[int]) -> IsotonicCalibrator:
+        pairs = sorted(zip(scores, labels, strict=True))
         blocks = [[s, float(y), 1.0] for s, y in pairs]
         i = 0
         while i < len(blocks) - 1:
@@ -543,7 +544,7 @@ class HuggingFaceLM:
                 float(lp),
                 float(math.log(int(r))),
             )
-            for t, lp, r in zip(targets, chosen, ranks)
+            for t, lp, r in zip(targets, chosen, ranks, strict=True)
         ]
 
     def perturb(self, text: str, n: int = 8) -> list[str]:
