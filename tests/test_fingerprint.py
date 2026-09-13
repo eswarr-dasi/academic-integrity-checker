@@ -7,8 +7,8 @@ engine, so it gets tested directly rather than through the pipeline.
 from __future__ import annotations
 
 from aic.fingerprint import (
-    exact_jaccard,
     estimate_jaccard,
+    exact_jaccard,
     fingerprint_tokens,
     guaranteed_match_length,
     minhash,
