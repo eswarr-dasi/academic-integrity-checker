@@ -31,7 +31,7 @@ from dataclasses import dataclass, field
 from typing import Iterable, Mapping, Protocol, Sequence
 
 from .fingerprint import DocumentFingerprint
-from .index import Candidate, CorpusIndex, SourceMeta
+from .index import Candidate, CorpusIndex
 from .normalize import NormalizedDoc, Span
 
 VERBATIM = "verbatim"
