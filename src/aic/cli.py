@@ -92,7 +92,8 @@ def cmd_check(args: argparse.Namespace) -> int:
 
     if args.print_json:
         print(report.to_json())
-    engine.save(args.index) if args.add_to_corpus else None
+    if args.add_to_corpus:
+        engine.save(args.index)
     return 0
 
 
