@@ -176,7 +176,7 @@ def estimate_jaccard(sig_a: list[int], sig_b: list[int]) -> float:
     """Fraction of agreeing signature slots, an unbiased Jaccard estimate."""
     if not sig_a or len(sig_a) != len(sig_b):
         return 0.0
-    agree = sum(1 for x, y in zip(sig_a, sig_b) if x == y)
+    agree = sum(1 for x, y in zip(sig_a, sig_b, strict=True) if x == y)
     return agree / len(sig_a)
 
 
