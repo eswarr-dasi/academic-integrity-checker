@@ -41,7 +41,7 @@ SMART_QUOTES = {
     "\u2018": "'", "\u2019": "'", "\u201a": "'", "\u2039": "'", "\u203a": "'",
 }
 
-DASHES = {ch: "-" for ch in "\u2010\u2011\u2012\u2013\u2014\u2015\u2212"}
+DASHES = dict.fromkeys("\u2010\u2011\u2012\u2013\u2014\u2015\u2212", "-")
 
 LIGATURES = {
     "\ufb00": "ff", "\ufb01": "fi", "\ufb02": "fl",
@@ -77,7 +77,7 @@ class Span:
     end: int
     kind: str = ""
 
-    def overlaps(self, other: "Span") -> bool:
+    def overlaps(self, other: Span) -> bool:
         return self.start < other.end and other.start < self.end
 
 
@@ -157,7 +157,7 @@ def dehyphenate(text: str, offsets: list[int]) -> tuple[str, list[int]]:
         drop.update(range(m.start(), m.end()))
     if not drop:
         return text, offsets
-    kept = [(c, o) for i, (c, o) in enumerate(zip(text, offsets)) if i not in drop]
+    kept = [(c, o) for i, (c, o) in enumerate(zip(text, offsets, strict=True)) if i not in drop]
     return "".join(c for c, _ in kept), [o for _, o in kept]
 
 
