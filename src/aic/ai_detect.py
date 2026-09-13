@@ -436,9 +436,19 @@ class AIDetector:
 
     def analyze(self, doc: NormalizedDoc) -> AIAnalysis:
         fv = self.features(doc)
-        raw = self.raw_score(fv)
-        index = self.calibrator(raw)
         segments = self._segments(doc)
+
+        # Lexical diversity features (type token ratio, hapax ratio) fall as a
+        # document gets longer, so scoring a whole thesis with a single feature
+        # vector turns length itself into evidence. Every segment is measured
+        # over a window of the same size, so the document level index is the
+        # word weighted mean of the segment scores, and the whole document
+        # vector is kept only as a diagnostic.
+        covered = sum(s.words for s in segments)
+        if covered:
+            index = sum(s.score * s.words for s in segments) / covered
+        else:
+            index = self.calibrator(self.raw_score(fv))
 
         # Interval from the spread of segment scores, widened when the model
         # is uncalibrated or running without likelihood features. This is a
