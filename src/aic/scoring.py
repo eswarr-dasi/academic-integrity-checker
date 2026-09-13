@@ -23,8 +23,8 @@ is making a policy choice and should say so out loud.
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from typing import Iterable, Sequence
 
 from .normalize import NormalizedDoc
 from .similarity import Match, apply_exclusions, covered_tokens
