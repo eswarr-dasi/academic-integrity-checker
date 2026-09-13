@@ -19,7 +19,7 @@ from .ingest import RawDocument, load_dir, load_path
 from .normalize import normalize
 from .report import OriginalityReport
 from .scoring import ScoringSettings, score_similarity
-from .similarity import DictTokenSource, find_matches
+from .similarity import find_matches
 
 
 @dataclass
