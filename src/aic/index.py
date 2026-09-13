@@ -21,7 +21,7 @@ than picked by feel.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 from .fingerprint import (
@@ -235,7 +235,7 @@ class CorpusIndex:
         )
 
     @classmethod
-    def load(cls, path: str | Path) -> "CorpusIndex":
+    def load(cls, path: str | Path) -> CorpusIndex:
         path = Path(path)
         cfg = json.loads((path / "config.json").read_text())
         idx = cls(
