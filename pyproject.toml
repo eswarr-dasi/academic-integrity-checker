@@ -30,7 +30,9 @@ dependencies = []
 [project.optional-dependencies]
 ingest = ["pypdf>=4", "python-docx>=1.1", "striprtf>=0.0.26", "beautifulsoup4>=4.12"]
 semantic = ["sentence-transformers>=3", "torch>=2.2", "scikit-learn>=1.4"]
-detect = ["transformers>=4.40", "torch>=2.2"]
+# sentencepiece is what the t5 tokenizer needs for the DetectGPT style
+# perturbation in aic.lm_hf.
+detect = ["transformers>=4.40", "torch>=2.2", "sentencepiece>=0.2"]
 api = ["fastapi>=0.110", "uvicorn[standard]>=0.29", "python-multipart>=0.0.9"]
 dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.5", "mypy>=1.10"]
 all = [
