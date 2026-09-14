@@ -47,6 +47,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Protocol
 
+from . import calibration
 from .normalize import NormalizedDoc, Span, normalize
 
 HUMAN = "human"
@@ -347,6 +348,7 @@ class AIAnalysis:
     calibrated: bool
     used_language_model: bool
     caveats: list[str] = field(default_factory=list)
+    profile: str | None = None
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -358,6 +360,7 @@ class AIAnalysis:
             ],
             "calibrated": self.calibrated,
             "used_language_model": self.used_language_model,
+            "profile": self.profile,
             "segments": [
                 {
                     "span": list(s.span),
@@ -387,6 +390,28 @@ class AIDetector:
     means: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_MEANS))
     stds: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_STDS))
     calibrator: IsotonicCalibrator = field(default_factory=IsotonicCalibrator)
+    profile: str | None = None
+
+    @classmethod
+    def calibrated(cls, lm: LanguageModel | None = None) -> AIDetector:
+        """Detector using the fitted profile in aic.calibration.
+
+        This is what the pipeline, the CLI and the web page use. The bare
+        constructor is left uncalibrated on purpose, so anyone assembling a
+        detector by hand is told so in the report caveats.
+        """
+        return cls(
+            lm=lm,
+            weights=dict(calibration.WEIGHTS),
+            bias=calibration.BIAS,
+            means=dict(calibration.MEANS),
+            stds=dict(calibration.STDS),
+            calibrator=IsotonicCalibrator(
+                breakpoints=list(calibration.CALIBRATION_BREAKPOINTS),
+                values=list(calibration.CALIBRATION_VALUES),
+            ),
+            profile=calibration.PROFILE_ID,
+        )
 
     def raw_score(self, fv: FeatureVector) -> float:
         z = self.bias
@@ -478,6 +503,8 @@ class AIDetector:
                 "Detector is running with placeholder weights and no isotonic "
                 "calibration. Treat the number as ordinal, not as a probability."
             )
+        elif self.profile == calibration.PROFILE_ID:
+            caveats.append(calibration.HEADLINE_CAVEAT)
         if not fv.has_likelihood:
             caveats.append(
                 "No reference language model was supplied, so the score uses "
@@ -496,6 +523,7 @@ class AIDetector:
             segments=segments,
             features=fv,
             calibrated=self.calibrator.fitted,
+            profile=self.profile,
             used_language_model=fv.has_likelihood,
             caveats=caveats,
         )
