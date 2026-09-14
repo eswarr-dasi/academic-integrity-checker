@@ -97,6 +97,7 @@ td.num{text-align:right;font-variant-numeric:tabular-nums}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.2rem}
 .card h3{font-size:1.02rem}
 .card p{margin:0;color:var(--mute);font-size:.93rem}
+.card-lead{color:var(--mute);font-size:.93rem;margin:0 0 1rem}
 .card .n{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#e8f0ff;color:var(--brand);font-weight:800;font-size:.9rem;margin-bottom:.7rem}
 .band-table td:first-child{font-weight:700;white-space:nowrap}
 .swatch{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:.45rem}
