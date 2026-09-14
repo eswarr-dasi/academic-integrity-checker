@@ -13,7 +13,7 @@ bottom is a thin shim that does a forward pass and hands rows of logits over.
 
 Install the optional extra before using the class:
 
-    pip install "academic-integrity-checker[lm]"
+    pip install "academic-integrity-checker[detect]"
 
 Two honest warnings. First, the shipped calibration profile was fitted with
 no language model attached, so switching one on changes the feature vector
@@ -36,7 +36,7 @@ DEFAULT_MASK_MODEL = "t5-small"
 MAX_TOKENS = 1024
 MISSING = (
     "HuggingFaceLM needs torch and transformers. Install the optional extra "
-    "with: pip install \"academic-integrity-checker[lm]\""
+    "with: pip install \"academic-integrity-checker[detect]\""
 )
 
 
