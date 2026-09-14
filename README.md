@@ -139,6 +139,34 @@ Versioned JSON is the source of truth; the HTML view is rendered from it.
 
 ---
 
+## Web interface
+
+`index.html` is a single page AI-detector front end. It loads this same
+standard library engine into [Pyodide](https://pyodide.org) and scores the pasted
+text inside the visitor own browser tab, so a draft is never uploaded, queued or
+stored anywhere.
+
+It reports the AI-writing index, the band, the confidence interval, a passage by
+passage breakdown over the 150 word scoring windows, the highlighted text, and
+whatever caveats the engine attached to that particular run. There is
+deliberately no sentence level score: one sentence is far below the detector
+minimum window size, so reporting a number for it would be theatre.
+
+The similarity side is intentionally absent from the page. Near-duplicate
+matching is only meaningful against a reference corpus you are licensed to hold,
+which cannot ship inside a static site, so it stays on the command line.
+
+Run it locally:
+
+```bash
+python -m http.server 8000
+# then open http://localhost:8000/
+```
+
+The page fetches `src/aic/*.py` relative to itself and falls back to a CDN copy of
+this repository, so the same files also work when served straight from GitHub
+Pages. `.nojekyll` is committed so that `__init__.py` is not filtered out by Jekyll.
+
 ## Repository layout
 
 ```
