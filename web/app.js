@@ -9,7 +9,7 @@
   var PYODIDE_JS = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js";
   var FALLBACK = "https://cdn.jsdelivr.net/gh/eswarr-dasi/academic-integrity-checker@main/src/aic/";
   var MODULES = [
-    "__init__.py", "normalize.py", "fingerprint.py", "index.py",
+    "__init__.py", "calibration.py", "normalize.py", "fingerprint.py", "index.py",
     "similarity.py", "scoring.py", "ai_detect.py", "ingest.py",
     "report.py", "pipeline.py", "cli.py"
   ];
@@ -19,7 +19,7 @@
     "sys.path.insert(0, '/engine')",
     "from aic.normalize import normalize",
     "from aic import ai_detect",
-    "_detector = ai_detect.AIDetector()",
+    "_detector = ai_detect.AIDetector.calibrated()",
     "def aic_check(text):",
     "    doc = normalize(text)",
     "    payload = _detector.analyze(doc).to_dict()",
@@ -176,7 +176,7 @@
       "<div class=\"meta\"><span class=\"chip " + m.cls + "\">" + m.label + "</span>" +
       "<p class=\"bandnote\">" + m.note + "</p>" +
       "<p class=\"bandnote\">Confidence interval " + pct(ci[0]) + " to " + pct(ci[1]) + " &middot; " +
-      (data.calibrated ? "calibrated" : "uncalibrated reference model") + " &middot; " +
+      (data.calibrated ? "profile " + (data.profile || "custom") : "uncalibrated") + " &middot; " +
       (data.used_language_model ? "with language model features" : "style features only") +
       "</p></div></div>";
 
