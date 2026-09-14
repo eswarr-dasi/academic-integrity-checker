@@ -226,6 +226,103 @@ Do not ship a detector you have not measured. `docs/EVALUATION.md` defines the h
 
 ---
 
+## Accuracy, measured
+
+The AI detector no longer runs on placeholder weights. `aic.calibration` ships
+a profile fitted on HC3, a public dataset of human and ChatGPT answers to the
+same questions, read through the free Hugging Face datasets-server API. The
+sample is 2,640 answers of at least 120 words, balanced 1,320 human against
+1,320 machine and stratified so both classes carry the same topic mix, split in
+two by a seeded shuffle. Features are stylometric only, measured per 150 word
+window and standardised, then a ridge penalised logistic regression solved by
+Newton-Raphson, with an isotonic calibrator on top.
+
+Measured once on the held out half:
+
+| Boundary | AI text caught | Human text wrongly flagged |
+| --- | --- | --- |
+| leaves the human band, 0.20 | 98.1% | 51.3% |
+| even odds, 0.50 | 87.5% | 19.1% |
+| likely-ai, 0.75 | 63.1% | 7.0% |
+| very-likely-ai, 0.90 | 38.6% | 3.2% |
+
+Document AUC 0.910, window AUC 0.882, accuracy 84.1% at the even odds point.
+
+The right hand column is the whole point. At the boundary where the report
+starts saying likely-ai, one human document in fourteen is still flagged, and
+that average hides where the damage lands:
+
+| Held out split | Human documents flagged at 0.75 |
+| --- | --- |
+| reddit_eli5 | 5.2% |
+| wiki_csai | 5.7% |
+| finance | 6.4% |
+| medicine | 31.6% |
+
+Formal, dense, clinical human prose is the worst case by a factor of six.
+Length matters as well: a one window document was wrongly flagged 13.6% of the
+time, against 2.3% at two windows and 1.5% at three or more.
+
+Two things this does not mean. It does not mean the detector is calibrated for
+coursework, because HC3 is question answering prose and a literature review is
+a different register, so expect worse. And it does not turn the number into
+evidence. A commercial service quoting roughly a 1% document level false
+positive rate is an order of magnitude better than this on its own benchmark,
+and even that is not treated as proof of misconduct by anyone competent.
+
+Refitting is a documented path rather than a mystery: score a labelled corpus
+per window, fit the weights, fit an `IsotonicCalibrator`, and replace
+`aic.calibration`. `AIDetector()` stays deliberately uncalibrated and says so
+in its caveats; `AIDetector.calibrated()` loads the shipped profile, and that
+is what the engine, the CLI and the web page use. Tests in
+`tests/test_ai_detect.py` guard the shape of the profile and the internal
+consistency of the numbers it publishes.
+
+## Source discovery
+
+`aic.discover` gives the similarity side something real to compare against
+using APIs that need no key or account: OpenAlex and Crossref. It builds spread
+out, content bearing query phrases from the submission, rebuilds OpenAlex
+inverted abstracts, flattens Crossref JATS, deduplicates by DOI and hands back
+`RawDocument` objects ready for `Engine.add_source`.
+
+```python
+from aic.discover import discover
+from aic.normalize import normalize
+from aic.pipeline import Engine
+
+text = open('paper.txt').read()
+engine = Engine.blank()
+for candidate in discover(normalize(text), queries=6, per_query=10):
+    engine.add_source(candidate.as_raw(), title=candidate.title,
+                      url=candidate.url, kind='discovered')
+report = engine.check_path('paper.txt')
+```
+
+Read the trade honestly. It indexes titles and abstracts, not full text, so it
+catches a reused abstract or a lifted definition and misses a paraphrased body
+paragraph completely. It is not web scale and it is not a licensed corpus. And
+it sends fragments of the submission to a third party in order to search for
+them, which is why the browser page never calls it, and why it should not be
+pointed at someone else's paper without them knowing.
+
+## Language model features
+
+`aic.lm_hf` is the adapter for the features that actually carry signal: token
+log probabilities, log rank, burstiness, and DetectGPT style curvature through
+T5 mask filling. The weights are freely downloadable, gpt2 by default because
+it runs on a laptop CPU.
+
+```bash
+pip install "academic-integrity-checker[detect]"
+```
+
+The arithmetic is plain Python over plain lists, so the suite checks it without
+installing torch and the default CI stays offline. Note the interaction with
+calibration: the shipped profile was fitted with no language model attached, so
+switching one on changes the feature vector that profile was built for. Refit
+before quoting probabilities.
+
 ## Limitations, read this before you trust a number
 
 - **Coverage is the ceiling on plagiarism detection.** A match can only be found against documents in the index. Without licensed access to journal archives and a student-paper repository, recall against real-world sources is far below a commercial product regardless of how good the algorithms are.
