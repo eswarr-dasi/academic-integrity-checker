@@ -93,6 +93,20 @@
       </tbody>
     </table>
   </div>
+  <div class="card" style="margin-top:1rem">
+    <h3>Measured performance</h3>
+    <p class="card-lead">Fitted on 1,320 balanced HC3 documents, then measured once on 1,320 the model had never seen. These are the real numbers, not a marketing claim.</p>
+    <table>
+      <thead><tr><th>Boundary</th><th class="num">AI text caught</th><th class="num">Human text wrongly flagged</th></tr></thead>
+      <tbody>
+        <tr><td>Leaves the human band, 20%</td><td class="num">98.1%</td><td class="num">51.3%</td></tr>
+        <tr><td>Even odds, 50%</td><td class="num">87.5%</td><td class="num">19.1%</td></tr>
+        <tr><td>Likely AI, 75%</td><td class="num">63.1%</td><td class="num">7.0%</td></tr>
+        <tr><td>Very likely AI, 90%</td><td class="num">38.6%</td><td class="num">3.2%</td></tr>
+      </tbody>
+    </table>
+    <p class="bandnote">Document AUC 0.910 and 84.1% accuracy at the even-odds point. Read the right hand column before you act on anything: at the likely-AI boundary one human document in fourteen is still flagged, and the detector was calibrated on question-and-answer prose rather than on coursework, so expect it to do worse than this on a real assignment.</p>
+  </div>
 </section>
 
 <div class="alt" id="signals">
@@ -116,9 +130,9 @@
   <h2>What this tool cannot tell you</h2>
   <div class="grid g2">
     <div class="card"><h3>It is not proof of misconduct</h3><p>A high index means the writing looks statistically like generated prose. That is a reason to ask questions, never a reason to accuse. Academic decisions need process evidence: drafts, version history and a conversation.</p></div>
-    <div class="card"><h3>The reference model is uncalibrated</h3><p>The weights shipped here are documented placeholders, not values fitted on a labelled corpus. The result says so on every run. Until it is calibrated on real data, read the band and ignore the decimal point.</p></div>
-    <div class="card"><h3>It can be unfair to some writers</h3><p>Plain, formulaic or heavily edited prose scores higher. Multilingual writers and writers using assistive tools are known to be disadvantaged by statistical detectors. Weight that before you act.</p></div>
-    <div class="card"><h3>Short text is unreliable</h3><p>Below roughly 300 words there is not enough signal for any of these statistics to mean much, and the interval widens to say so.</p></div>
+    <div class="card"><h3>Calibrated, but not on coursework</h3><p>The shipped profile was fitted on HC3 question-and-answer documents and measured on a held-out half: AUC 0.910, accuracy 84.1%. Student coursework is a different register, so treat those numbers as a ceiling rather than a promise.</p></div>
+    <div class="card"><h3>It is unfair to formal technical prose</h3><p>At the likely-AI boundary it wrongly flagged 7.0% of human documents overall and 31.6% of human medical writing. Dense clinical or technical human prose is the worst case, and multilingual writers are disadvantaged by statistical detectors generally.</p></div>
+    <div class="card"><h3>Short text is unreliable</h3><p>Measured on held-out data, a single-window document was wrongly flagged 13.6% of the time against 2.3% for two windows and 1.5% for three or more. Below roughly 300 words the interval widens to say so.</p></div>
     <div class="card"><h3>Paraphrasing defeats it</h3><p>A few minutes of manual rewriting moves the style markers out of range. Treat a low score as no information rather than as a clean bill of health.</p></div>
     <div class="card"><h3>Similarity checking is separate</h3><p>The plagiarism side of this project needs a licensed reference corpus to compare against, which cannot ship in a browser page. It runs from the command line against your own index.</p></div>
   </div>
