@@ -104,7 +104,6 @@ def test_refill_drops_a_sentinel_the_model_never_answered():
 
 
 def test_the_adapter_explains_itself_when_the_extra_is_missing():
-    pytest.importorskip
     try:
         import transformers  # noqa: F401
     except ImportError:
