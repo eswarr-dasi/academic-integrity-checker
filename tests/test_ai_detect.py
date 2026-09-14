@@ -1,10 +1,11 @@
 """Tests for the AI-writing detector.
 
-The point of these tests is not accuracy, which cannot be established without
-a labelled corpus. It is that the plumbing is honest: features go in the
-direction the literature says they do, an uncalibrated model announces itself,
-the interval always contains the point estimate, and no code path can produce
-a bare verdict.
+These tests are mostly about honest plumbing rather than accuracy: features go
+in the direction the literature says they do, an uncalibrated model announces
+itself, the interval always contains the point estimate, and no code path can
+produce a bare verdict. Accuracy itself is measured out of band and recorded in
+aic.calibration.METRICS; what is checked here is that the shipped profile stays
+internally consistent with those numbers.
 """
 
 from __future__ import annotations
@@ -12,6 +13,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, replace
 
+from aic import calibration
 from aic.ai_detect import (
     AIDetector,
     FeatureVector,
@@ -290,3 +292,57 @@ def test_a_longer_document_is_not_scored_higher_for_being_longer():
     short = detector.analyze(normalize(" ".join(SENTENCES)))
     long_form = detector.analyze(normalize(" ".join(SENTENCES * 12)))
     assert abs(long_form.index - short.index) < 0.15
+
+def test_the_calibrated_profile_announces_itself_as_calibrated():
+    analysis = AIDetector.calibrated().analyze(normalize(" ".join(SENTENCES * 4)))
+    payload = analysis.to_dict()
+    assert payload["calibrated"] is True
+    assert payload["profile"] == calibration.PROFILE_ID
+    assert not any("placeholder weights" in c for c in payload["caveats"])
+    assert any("HC3" in c for c in payload["caveats"])
+
+
+def test_the_bare_detector_still_admits_it_is_uncalibrated():
+    payload = AIDetector().analyze(normalize(" ".join(SENTENCES * 4))).to_dict()
+    assert payload["calibrated"] is False
+    assert payload["profile"] is None
+    assert any("placeholder weights" in c for c in payload["caveats"])
+
+
+def test_the_shipped_calibration_curve_is_monotone_and_bounded():
+    breakpoints = calibration.CALIBRATION_BREAKPOINTS
+    values = calibration.CALIBRATION_VALUES
+    assert len(breakpoints) == len(values)
+    assert breakpoints == sorted(breakpoints)
+    assert values == sorted(values)
+    assert values[0] >= 0.0
+    assert values[-1] <= 1.0
+
+
+def test_the_profile_covers_every_style_feature_it_weights():
+    for name in calibration.FEATURES:
+        assert name in calibration.WEIGHTS
+        assert name in calibration.MEANS
+        assert name in calibration.STDS
+        assert calibration.STDS[name] > 0.0
+
+
+def test_the_published_metrics_stay_internally_consistent():
+    metrics = calibration.METRICS
+    assert metrics["document_auc"] > 0.85
+    points = metrics["operating_points"]
+    assert [p["fpr"] for p in points] == sorted(
+        (p["fpr"] for p in points), reverse=True
+    )
+    assert [p["tpr"] for p in points] == sorted(
+        (p["tpr"] for p in points), reverse=True
+    )
+    by_source = metrics["fpr_by_source_at_0_75"]
+    assert by_source["medicine"] > by_source["reddit_eli5"]
+
+
+def test_the_calibrated_detector_still_refuses_to_return_a_verdict():
+    detector = AIDetector.calibrated()
+    payload = detector.analyze(normalize(" ".join(SENTENCES * 4))).to_dict()
+    assert "verdict" not in payload
+    assert "cheated" not in payload
