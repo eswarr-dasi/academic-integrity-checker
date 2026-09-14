@@ -59,7 +59,7 @@ class TokenStore:
 class Engine:
     index: CorpusIndex
     store: TokenStore = field(default_factory=TokenStore)
-    detector: AIDetector = field(default_factory=AIDetector)
+    detector: AIDetector = field(default_factory=AIDetector.calibrated)
     settings: ScoringSettings = field(default_factory=ScoringSettings)
 
     # -- corpus side ------------------------------------------------------
