@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free AI Writing Detector - Integrity Lab</title>
+<meta name="description" content="Free AI writing detector that runs entirely in your browser. Paste an essay or paper and get an AI-writing index, a confidence band and a passage by passage breakdown. Nothing is uploaded.">
+<meta name="color-scheme" content="light">
+<link rel="stylesheet" href="web/app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Ctext x='16' y='22' font-family='Helvetica,Arial' font-size='15' font-weight='bold' fill='white' text-anchor='middle'%3EAI%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="site">
+  <a class="brand" href="#top"><span class="mark">AI</span><span>Integrity<b>Lab</b></span></a>
+  <nav>
+    <a href="#tool">Detector</a>
+    <a href="#how">How it works</a>
+    <a href="#score">Your score</a>
+    <a href="#signals">Signals</a>
+    <a href="#limits">Limits</a>
+    <a href="#faq">FAQ</a>
+    <a class="ghost" href="https://github.com/eswarr-dasi/academic-integrity-checker">Source code</a>
+  </nav>
+</header>
+
+<section class="hero" id="top">
+  <p class="badge"><i></i> Runs in your browser - your text is never uploaded</p>
+  <h1>Free <span>AI Writing Detector</span></h1>
+  <p class="lead">Paste an essay, a research paper or a discussion post. You get an AI-writing index, a confidence band with an interval, and a passage by passage breakdown. What you will not get is a verdict, because no detector has earned the right to give one.</p>
+  <ul class="pills">
+    <li>No signup</li>
+    <li>No upload</li>
+    <li>Unlimited words</li>
+    <li>Passage level detail</li>
+    <li>Open source</li>
+  </ul>
+</section>
+
+<section class="tool" id="tool">
+  <div class="tabs">
+    <button class="tab on" type="button">AI Detector</button>
+    <span class="tab off" title="The similarity engine needs a licensed reference corpus, so it ships as a command line tool rather than a web demo">Plagiarism similarity - CLI only</span>
+  </div>
+  <div class="panes">
+    <div class="pane">
+      <div class="pane-head"><h2>Your text</h2><span id="wc">0 words</span></div>
+      <label class="sr" for="input">Text to check</label>
+      <textarea id="input" placeholder="Paste your text here. Around 300 words or more gives the most stable result." spellcheck="false"></textarea>
+      <div class="actions">
+        <button id="run" class="primary" type="button">Check for AI writing</button>
+        <button id="sample" class="ghostbtn" type="button">Load sample</button>
+        <button id="clear" class="ghostbtn" type="button">Clear</button>
+      </div>
+      <p class="engine" id="engine">Starting the engine...</p>
+    </div>
+    <div class="pane">
+      <div class="pane-head"><h2>Result</h2><span id="stamp"></span></div>
+      <div class="empty" id="empty">
+        <div class="ring off"><b>--</b><small>AI index</small></div>
+        <p>Your AI-writing index, confidence band and passage breakdown will appear here.</p>
+      </div>
+      <div id="result" hidden></div>
+    </div>
+  </div>
+</section>
+
+<div class="alt" id="how">
+  <div class="alt-wrap">
+    <p class="eyebrow center">How it works</p>
+    <h2 class="center">Three steps, none of them on a server</h2>
+    <p class="sub center">The Python scoring engine is compiled to WebAssembly and run inside your tab. There is no upload, no queue and no stored copy of your draft.</p>
+    <div class="grid g3">
+      <div class="card"><div class="n">1</div><h3>Paste your draft</h3><p>Essay, literature review, reflection, report or application statement. Quotations, citations and reference lists are detected and set aside so correctly sourced material does not distort the score.</p></div>
+      <div class="card"><div class="n">2</div><h3>The engine measures style</h3><p>The text is split into equal windows of about 150 words. Each window is measured for sentence length variation, vocabulary variety, share of words used only once, punctuation variety and transition phrase rate.</p></div>
+      <div class="card"><div class="n">3</div><h3>Read the band, not the digit</h3><p>The document index is the word weighted mean of the window scores, reported with a confidence interval and a band. Passages are listed so you can see exactly where the signal came from.</p></div>
+    </div>
+  </div>
+</div>
+
+<section id="score">
+  <p class="eyebrow">Your score</p>
+  <h2>What the AI-writing index means</h2>
+  <p class="sub left">These are the actual thresholds in the engine. The unclear band is wide on purpose: in that range the evidence genuinely does not separate careful human writing from edited AI writing.</p>
+  <div class="card">
+    <table class="band-table">
+      <thead><tr><th>Index</th><th>Band</th><th>What it supports</th></tr></thead>
+      <tbody>
+        <tr><td>0 - 20%</td><td><span class="swatch" style="background:#16a34a"></span>Human-like</td><td>No action. Style markers sit in the normal human range.</td></tr>
+        <tr><td>20 - 75%</td><td><span class="swatch" style="background:#d97706"></span>Unclear</td><td>No conclusion either way. Read the passages if you are curious, but this band is not evidence.</td></tr>
+        <tr><td>75 - 90%</td><td><span class="swatch" style="background:#ea580c"></span>Likely AI-assisted</td><td>Worth a conversation about process and drafts. Not a finding on its own.</td></tr>
+        <tr><td>90 - 100%</td><td><span class="swatch" style="background:#dc2626"></span>Very likely AI</td><td>Strong signal across most passages. Corroborate with version history and the writer's own account.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="alt" id="signals">
+  <div class="alt-wrap">
+    <p class="eyebrow">Writing signals</p>
+    <h2>What the detector actually measures</h2>
+    <p class="sub left">Every number in the result comes from one of these, and you can open the diagnostics panel to see the raw values for your own text.</p>
+    <div class="grid g3">
+      <div class="card"><h3>Sentence length variation</h3><p>Human drafts lurch between short and long sentences. Generated prose tends to settle into a narrow, even rhythm.</p></div>
+      <div class="card"><h3>Vocabulary variety</h3><p>The ratio of distinct words to total words, measured inside a fixed window so document length cannot move it.</p></div>
+      <div class="card"><h3>Words used only once</h3><p>Specific detail, names and odd word choices produce one-off words. Generic phrasing reuses the same vocabulary.</p></div>
+      <div class="card"><h3>Transition phrase rate</h3><p>Dense runs of furthermore, additionally and in conclusion are a recognisable pattern in generated academic text.</p></div>
+      <div class="card"><h3>Punctuation variety</h3><p>Semicolons, dashes, parentheses and question marks appear unevenly in human writing and more uniformly in generated writing.</p></div>
+      <div class="card"><h3>Burstiness and perplexity</h3><p>The strongest signals need a language model. The interface for them exists, so when you plug one in the detector reports that it used it - and widens the interval when it did not.</p></div>
+    </div>
+  </div>
+</div>
+
+<section id="limits">
+  <p class="eyebrow">Honest limits</p>
+  <h2>What this tool cannot tell you</h2>
+  <div class="grid g2">
+    <div class="card"><h3>It is not proof of misconduct</h3><p>A high index means the writing looks statistically like generated prose. That is a reason to ask questions, never a reason to accuse. Academic decisions need process evidence: drafts, version history and a conversation.</p></div>
+    <div class="card"><h3>The reference model is uncalibrated</h3><p>The weights shipped here are documented placeholders, not values fitted on a labelled corpus. The result says so on every run. Until it is calibrated on real data, read the band and ignore the decimal point.</p></div>
+    <div class="card"><h3>It can be unfair to some writers</h3><p>Plain, formulaic or heavily edited prose scores higher. Multilingual writers and writers using assistive tools are known to be disadvantaged by statistical detectors. Weight that before you act.</p></div>
+    <div class="card"><h3>Short text is unreliable</h3><p>Below roughly 300 words there is not enough signal for any of these statistics to mean much, and the interval widens to say so.</p></div>
+    <div class="card"><h3>Paraphrasing defeats it</h3><p>A few minutes of manual rewriting moves the style markers out of range. Treat a low score as no information rather than as a clean bill of health.</p></div>
+    <div class="card"><h3>Similarity checking is separate</h3><p>The plagiarism side of this project needs a licensed reference corpus to compare against, which cannot ship in a browser page. It runs from the command line against your own index.</p></div>
+  </div>
+</section>
+
+<div class="alt" id="faq">
+  <div class="alt-wrap">
+    <p class="eyebrow">FAQ</p>
+    <h2>Questions about AI detection</h2>
+    <details class="faq"><summary>Is my text uploaded anywhere?</summary><p>No. The scoring engine is downloaded to your browser and your text is passed to it in memory. Nothing is sent to a server, stored or logged. You can confirm this by reading the source, or by loading the page and then going offline before you paste.</p></details>
+    <details class="faq"><summary>Is this Turnitin?</summary><p>No, and it is not affiliated with or endorsed by Turnitin or any other vendor. It is an independent open source implementation built to the same report structure - similarity index, AI-writing indicator, per passage detail - so you can see how that kind of number is produced.</p></details>
+    <details class="faq"><summary>Will it match what my institution's detector says?</summary><p>Probably not exactly. Different detectors use different features, different training data and different thresholds, and none of them publish enough for the numbers to be comparable. Use this to review your own writing, not to predict a grade.</p></details>
+    <details class="faq"><summary>My paper is all my own work but the score is high. Why?</summary><p>Formal academic register looks like generated text to a style based detector: even sentence lengths, heavy transitions, a controlled vocabulary. That is a weakness of the method, not a finding about you. Open the passage breakdown to see which windows drove it.</p></details>
+    <details class="faq"><summary>Can it detect ChatGPT, Claude or Gemini specifically?</summary><p>No. It measures statistical properties of the writing, not a watermark or a model fingerprint, so it cannot attribute text to a particular product. Anyone claiming otherwise is overselling.</p></details>
+    <details class="faq"><summary>Why is there no percentage of AI sentences?</summary><p>Because single sentences are far too short to score reliably. The engine refuses to report below its minimum window size, which is why you get passages of about 150 words instead of a sentence by sentence verdict.</p></details>
+    <details class="faq"><summary>Can I run it myself?</summary><p>Yes. The whole engine is standard library Python with no runtime dependencies, with a command line interface and a test suite. Clone the repository and run it locally or in CI.</p></details>
+    <details class="faq"><summary>What should I do with a high score on my own draft?</summary><p>Treat it as an editing prompt. Add specific evidence and examples, vary your sentence lengths, cut stacked transition phrases and make sure the argument reads like your own reasoning.</p></details>
+  </div>
+</div>
+
+<section>
+  <div class="cta">
+    <h2>Check a draft before you submit it</h2>
+    <p>Paste your text, read the band and the passage breakdown, then revise with the flagged windows in front of you.</p>
+    <a href="#tool">Open the AI detector</a>
+  </div>
+</section>
+
+<footer>
+  <div class="foot">
+    <div>
+      <a class="brand" href="#top"><span class="mark">AI</span><span>Integrity<b>Lab</b></span></a>
+      <p>An open source originality engine: near duplicate similarity detection plus AI-writing detection, reported as calibrated bands rather than verdicts. Not affiliated with Turnitin or any commercial detection vendor.</p>
+    </div>
+    <div>
+      <h4>Project</h4>
+      <ul>
+        <li><a href="https://github.com/eswarr-dasi/academic-integrity-checker">Repository</a></li>
+        <li><a href="https://github.com/eswarr-dasi/academic-integrity-checker#readme">Architecture</a></li>
+        <li><a href="https://github.com/eswarr-dasi/academic-integrity-checker/tree/main/tests">Test suite</a></li>
+        <li><a href="https://github.com/eswarr-dasi/academic-integrity-checker/issues">Report an issue</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Use responsibly</h4>
+      <ul>
+        <li><a href="#limits">Known limits</a></li>
+        <li><a href="#score">Reading the bands</a></li>
+        <li><a href="#faq">Privacy</a></li>
+        <li><a href="https://github.com/eswarr-dasi/academic-integrity-checker/blob/main/LICENSE">MIT licence</a></li>
+      </ul>
+    </div>
+  </div>
+  <p class="legal">Scores are writing style signals, not evidence of academic misconduct. Open source under the MIT licence.</p>
+</footer>
+
+<script src="web/app.js"></script>
+</body>
+</html>
