@@ -118,4 +118,5 @@ footer{border-top:1px solid var(--line);margin-top:3rem;background:#fff}
 .foot ul{list-style:none;padding:0;margin:0}
 .foot li{margin-bottom:.35rem}
 .legal{border-top:1px solid var(--line);padding:1rem 1.25rem;text-align:center;color:var(--mute);font-size:.82rem}
+[hidden]{display:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
